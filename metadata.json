@@ -1,0 +1,5 @@
+{
+  "name": "LeetCode Streak Reminder",
+  "description": "A PWA to help students maintain their daily LeetCode solving streak with push notifications.",
+  "requestFramePermissions": []
+}
