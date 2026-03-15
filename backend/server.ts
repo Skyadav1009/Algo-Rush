@@ -4,12 +4,11 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { createServer as createViteServer } from 'vite';
-import authRoutes from './backend/routes/auth.js';
-import problemRoutes from './backend/routes/problem.js';
-import streakRoutes from './backend/routes/streak.js';
-import notificationRoutes from './backend/routes/notifications.js';
-import { initCronJobs } from './backend/cron/jobs.js';
+import authRoutes from './routes/auth.js';
+import problemRoutes from './routes/problem.js';
+import streakRoutes from './routes/streak.js';
+import notificationRoutes from './routes/notifications.js';
+import { initCronJobs } from './cron/jobs.js';
 
 dotenv.config();
 
@@ -18,9 +17,13 @@ const __dirname = path.dirname(__filename);
 
 async function startServer() {
   const app = express();
-  const PORT = 3000;
+  const PORT = process.env.PORT || 3000;
 
-  app.use(cors());
+  // Since frontend and backend are separate, enable CORS for the frontend port (e.g., 5173) and production URL
+  app.use(cors({
+    origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
+    credentials: true,
+  }));
   app.use(express.json());
 
   // Connect to MongoDB
@@ -41,21 +44,6 @@ async function startServer() {
 
   // Initialize Cron Jobs
   initCronJobs();
-
-  // Vite middleware for development
-  if (process.env.NODE_ENV !== 'production') {
-    const vite = await createViteServer({
-      server: { middlewareMode: true },
-      appType: 'spa',
-    });
-    app.use(vite.middlewares);
-  } else {
-    const distPath = path.join(process.cwd(), 'dist');
-    app.use(express.static(distPath));
-    app.get('*all', (req, res) => {
-      res.sendFile(path.join(distPath, 'index.html'));
-    });
-  }
 
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server running on http://localhost:${PORT}`);

@@ -43,7 +43,7 @@ export function Streak() {
         </div>
         
         <div className="divide-y divide-slate-100">
-          {history.length > 0 ? (
+          {Array.isArray(history) && history.length > 0 ? (
             history.map((item) => (
               <div key={item._id} className="p-6 flex items-center justify-between hover:bg-slate-50 transition-colors">
                 <div className="flex items-center gap-4">
